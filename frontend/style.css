@@ -1,0 +1,435 @@
+/*
+ * Style CSS - TextoMúsica
+ * 
+ * Estilo simples e limpo para a interface.
+ * Design responsivo com duas colunas na área principal.
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* ========================================================================
+   HEADER
+   ======================================================================== */
+
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.header-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.header-status {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.status-label {
+  font-weight: 500;
+}
+
+.status-value {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* ========================================================================
+   MAIN CONTAINER
+   ======================================================================== */
+
+.main-container {
+  max-width: 1200px;
+  margin: 1.5rem auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 0 1rem 2rem;
+}
+
+@media (max-width: 800px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ========================================================================
+   COLUMNS
+   ======================================================================== */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ========================================================================
+   SECTION
+   ======================================================================== */
+
+.section {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  border-bottom: 2px solid #16a085;
+  padding-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* ========================================================================
+   TEXTAREA
+   ======================================================================== */
+
+.input-text {
+  width: 100%;
+  height: 200px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.input-text:focus {
+  outline: none;
+  border-color: #16a085;
+  box-shadow: 0 0 0 2px rgba(22, 160, 133, 0.1);
+}
+
+/* ========================================================================
+   CONTROL GROUPS
+   ======================================================================== */
+
+.control-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.control-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* ========================================================================
+   SLIDERS
+   ======================================================================== */
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #ecf0f1, #16a085);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #16a085;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #0f7863;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #16a085;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #0f7863;
+}
+
+.slider-value-left,
+.slider-value-right {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+  min-width: 30px;
+  text-align: center;
+}
+
+.slider-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.slider-display-label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.slider-display-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #16a085;
+  min-width: 40px;
+}
+
+/* ========================================================================
+   SELECT
+   ======================================================================== */
+
+.select-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: #16a085;
+}
+
+/* ========================================================================
+   OCTAVE CONTROL
+   ======================================================================== */
+
+.octave-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.octave-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: #f8f9fa;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.octave-button:hover {
+  background-color: #16a085;
+  color: white;
+  border-color: #16a085;
+}
+
+.octave-button:active {
+  transform: scale(0.95);
+}
+
+.octave-display {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ========================================================================
+   FOOTER E BOTÕES
+   ======================================================================== */
+
+.footer {
+  background-color: white;
+  border-top: 1px solid #ddd;
+  padding: 1.5rem 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: auto;
+}
+
+.actions {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button-play {
+  background-color: #16a085;
+  color: white;
+  flex: 1;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
+
+.button-play:hover:not(:disabled) {
+  background-color: #0f7863;
+  box-shadow: 0 2px 8px rgba(22, 160, 133, 0.3);
+}
+
+.button-play:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button-play:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button-stop {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background-color: #95a5a6;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.5rem;
+}
+
+.button-stop:hover:not(:disabled) {
+  background-color: #7f8c8d;
+}
+
+.button-stop:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.button-stop:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.footer-links {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.link {
+  font-size: 0.85rem;
+  color: #16a085;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #0f7863;
+  text-decoration: underline;
+}
+
+/* ========================================================================
+   RESPONSIVE
+   ======================================================================== */
+
+@media (max-width: 600px) {
+  .header-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-title {
+    font-size: 1.5rem;
+  }
+
+  .main-container {
+    margin: 1rem auto 0;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .button-play {
+    width: 100%;
+  }
+
+  .button-stop {
+    width: 100%;
+    border-radius: 6px;
+  }
+}

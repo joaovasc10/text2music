@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text2Music - Gerador de Sequências Musicais</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Barra de cabeçalho -->
+  <header class="header">
+    <div class="header-container">
+      <h1 class="header-title">Text2Music</h1>
+      <div class="header-status">
+        <span class="status-label">Status:</span>
+        <span id="status-text" class="status-value">Pronto</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container principal -->
+  <main class="main-container">
+    <!-- Coluna esquerda: Contexto de Entrada e Reprodução -->
+    <section class="column column-left">
+      <!-- Contexto de Entrada -->
+      <div class="section">
+        <h2 class="section-title">Contexto de Entrada</h2>
+        <p class="section-subtitle">Texto inserido (Amostra):</p>
+        <textarea id="input-text" class="input-text"
+          placeholder="Insira o texto aqui...&#10;Exemplo: 'Despacio quiero respirar tu cuello despacito...'"></textarea>
+      </div>
+
+      <!-- Reprodução -->
+      <div class="section">
+        <h2 class="section-title">Reprodução</h2>
+
+        <!-- Tempo / BPM -->
+        <div class="control-group">
+          <label for="bpm-slider" class="control-label">
+            Tempo / BPM (Configurações do Sistema)
+          </label>
+          <div class="slider-container">
+            <span class="slider-value-left">60</span>
+            <input type="range" id="bpm-slider" class="slider" min="60" max="200" value="120" step="1">
+            <span class="slider-value-right">200</span>
+          </div>
+          <div class="slider-display">
+            <span class="slider-display-label">BPM:</span>
+            <span id="bpm-display" class="slider-display-value">120</span>
+          </div>
+        </div>
+
+        <!-- Volume -->
+        <div class="control-group">
+          <label for="volume-slider" class="control-label">
+            Volume (MIDI 0-127, padrão: 64)
+          </label>
+          <div class="slider-container">
+            <span class="slider-value-left">0</span>
+            <input type="range" id="volume-slider" class="slider" min="0" max="127" value="64" step="1">
+            <span class="slider-value-right">127</span>
+          </div>
+          <div class="slider-display">
+            <span class="slider-display-label">Volume:</span>
+            <span id="volume-display" class="slider-display-value">64</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coluna direita: Configurações de Instrumento -->
+    <section class="column column-right">
+      <div class="section">
+        <h2 class="section-title">Configurações de Instrumento</h2>
+
+        <!-- Seletor de Instrumento -->
+        <div class="control-group">
+          <label for="instrument-select" class="control-label">
+            Instrumento Principal (MIDI 0-127)
+          </label>
+          <select id="instrument-select" class="select-input">
+            <option value="1">01 Piano (Padrão)</option>
+            <option value="24">24 Bandoneon</option>
+            <option value="41">41 Violino</option>
+            <option value="110">110 Gaita de Foles</option>
+            <option value="114">114 Agogô</option>
+            <option value="123">123 Ondas do Mar</option>
+          </select>
+        </div>
+
+        <!-- Oitava Base -->
+        <div class="control-group">
+          <label for="octave-label" class="control-label">
+            Oitava Base (Configurações, range 0-8, padrão: 4)
+          </label>
+          <div class="octave-control">
+            <button id="octave-minus" class="octave-button octave-button-minus">−</button>
+            <span id="octave-display" class="octave-display">4</span>
+            <button id="octave-plus" class="octave-button octave-button-plus">+</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Rodapé: Botões de Ação -->
+  <footer class="footer">
+    <div class="actions">
+      <button id="play-button" class="button button-play">
+        ♪ TOCAR FAIXA
+      </button>
+      <button id="stop-button" class="button button-stop" title="Parar">
+        ■
+      </button>
+    </div>
+    <div class="footer-links">
+      <a href="#" id="clear-link" class="link">LIMPAR / RESETAR CONFIGURAÇÕES PADRÃO</a>
+    </div>
+  </footer>
+
+  <!-- Script da aplicação -->
+  <script src="app.js"></script>
+</body>
+
+</html>
