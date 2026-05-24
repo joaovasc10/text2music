@@ -8,7 +8,6 @@ A reprodução ocorre em thread separada para não bloquear a interface.
 """
 
 import time
-import threading
 
 try:
     import pygame.midi
@@ -38,19 +37,35 @@ class Player:
     
     def initialize(self):
         """
-        Inicializa pygame.midi.
-        
-        Deve ser chamado uma vez antes de qualquer reprodução.
-        Se pygame não estiver disponível, avisa e retorna silenciosamente.
+        Inicializa pygame.midi e abre o dispositivo de saída.
+
+        Usa o dispositivo padrão do sistema. Se não houver padrão,
+        percorre todos os dispositivos e abre o primeiro disponível.
         """
         if not PYGAME_AVAILABLE:
             print("AVISO: pygame.midi não disponível. Reprodução de áudio desabilitada.")
             return
-        
+
         try:
             pygame.midi.init()
-            # Abre a saída MIDI padrão
-            self.output = pygame.midi.Output(0)
+
+            device_id = pygame.midi.get_default_output_id()
+
+            # Se não houver padrão, procura qualquer saída disponível
+            if device_id == -1:
+                for i in range(pygame.midi.get_count()):
+                    info = pygame.midi.get_device_info(i)
+                    # info = (interface, name, is_input, is_output, opened)
+                    if info[3]:  # is_output
+                        device_id = i
+                        break
+
+            if device_id == -1:
+                print("AVISO: Nenhum dispositivo MIDI encontrado. Reprodução desabilitada.")
+                return
+
+            self.output = pygame.midi.Output(device_id)
+
         except Exception as e:
             print(f"ERRO ao inicializar pygame.midi: {e}")
             self.output = None
@@ -118,24 +133,25 @@ class Player:
     def play_sequence(self, events):
         """
         Loop de reprodução em thread separada.
-        
+
         Itera sobre a lista de eventos verificando is_playing a cada um.
         Se is_playing ficar False (usuário clicou Stop), para imediatamente.
-        
+
         Args:
             events (list[MusicEvent]): Lista de eventos a reproduzir
         """
         self.is_playing = True
-        
+
+        # Aplica o instrumento configurado antes de começar a tocar,
+        # caso o texto comece direto com notas sem eventos de controle
+        if events and self.output:
+            self.output.set_instrument(events[0].instrument, self.current_channel)
+
         for event in events:
-            # Verificar se deve parar
             if not self.is_playing:
                 break
-            
-            # Reproduzir o evento
             self.play_event(event)
-        
-        # Fim da sequência
+
         self.is_playing = False
     
     def stop(self):
