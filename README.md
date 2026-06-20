@@ -1,4 +1,4 @@
-# TextoMúsica - Gerador de Sequências Musicais a partir de Texto
+# Text2Music - Gerador de Sequências Musicais a partir de Texto
 
 Um sistema Python com interface web que transforma texto em sequências musicais reproduzíveis via MIDI.
 
