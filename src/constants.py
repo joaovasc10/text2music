@@ -25,10 +25,10 @@ BPM_STEP = 10  # Incremento/decremento por '>' e '<'
 # Índice = número da linha (0 = primeira voz)
 # ============================================================================
 VOICE_DEFAULTS = [
-    {'octave': 6, 'volume': 100, 'instrument': 6},   # V0: Harpsichord
-    {'octave': 5, 'volume': 80,  'instrument': 19},  # V1: Church Organ
-    {'octave': 4, 'volume': 60,  'instrument': 73},  # V2: Flute
-    {'octave': 3, 'volume': 40,  'instrument': 48},  # V3: Strings
+    {'octave': 6, 'volume': 100, 'instrument': 6},   # V0: Cravo (Harpsichord)
+    {'octave': 5, 'volume': 80,  'instrument': 20},  # V1: Órgão (Church Organ)
+    {'octave': 4, 'volume': 60,  'instrument': 0},   # V2: Piano
+    {'octave': 3, 'volume': 40,  'instrument': 70},  # V3: Fagote (Bassoon)
 ]
 
 # ============================================================================
@@ -55,16 +55,13 @@ SILENCE_CHARS = set('abcdefgh')
 # Referência: General MIDI Instrument Numbers
 # ============================================================================
 INSTRUMENT_MAP = {
-    '!': 24,      # Bandoneon
-    'O': 110,     # Gaita de Foles (vowel)
-    'o': 110,     # Gaita de Foles (lowercase)
-    'I': 110,     # Gaita de Foles (vowel)
-    'i': 110,     # Gaita de Foles (lowercase)
-    'U': 110,     # Gaita de Foles (vowel)
-    'u': 110,     # Gaita de Foles (lowercase)
-    ',': 114,     # Agogô
-    ';': 15,      # Tubular Bells
-    'NL': 123,    # Ondas do Mar (newline)
+    '!': 22,   # Harmonica (Fase 2 — antes era Bandoneon #24)
+    ',': 20,   # Church Organ (Fase 2 — antes era Agogô #114)
+    ';': 15,   # Tubular Bells
+    # Fase 2: as vogais O, I, U deixaram de trocar instrumento e passaram a
+    # seguir a regra de repetição/pausa (ver CharacterMapper.is_repeat_condition).
+    # Fase 2: a nova linha (NL) é apenas separador de vozes e é ignorada
+    # no Interpreter (não troca mais para Ondas do Mar).
 }
 
 # ============================================================================

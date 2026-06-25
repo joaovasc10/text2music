@@ -52,6 +52,10 @@ class Interpreter:
         
         # Processa cada token
         for token in self.reader.characters():
+            # Fase 2: a nova linha é apenas separador de vozes — ignorada aqui
+            if token == 'NL':
+                continue
+
             # Token de atraso [n]: gera n eventos de silêncio
             if token.startswith('[') and token.endswith(']') and token[1:-1].isdigit():
                 n = int(token[1:-1])
