@@ -29,7 +29,19 @@
         <h2 class="section-title">Contexto de Entrada</h2>
         <p class="section-subtitle">Texto inserido (Amostra):</p>
         <textarea id="input-text" class="input-text"
-          placeholder="Insira o texto aqui...&#10;Exemplo: 'Despacio quiero respirar tu cuello despacito...'"></textarea>
+          placeholder="Insira o texto aqui...&#10;Cada linha é uma voz (fuga).&#10;Ex:&#10;[0] G A H C&#10;[4] D E F G"></textarea>
+
+        <p class="hint">
+          Cada <strong>linha</strong> é uma voz da fuga (V0, V1, ...).
+          <code>[n]</code> atrasa a entrada · <code>&gt;</code>/<code>&lt;</code> aceleram/desaceleram ·
+          <code>V</code> desce oitava · <code>Mb</code> = Mi bemol.
+        </p>
+
+        <div class="file-actions">
+          <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+          <button id="load-button" class="button-secondary" type="button">📂 Carregar TXT</button>
+          <button id="save-button" class="button-secondary" type="button">💾 Salvar TXT</button>
+        </div>
       </div>
 
       <!-- Reprodução -->
@@ -78,15 +90,10 @@
         <!-- Seletor de Instrumento -->
         <div class="control-group">
           <label for="instrument-select" class="control-label">
-            Instrumento Principal (MIDI 0-127)
+            Instrumento Principal — 128 instrumentos General MIDI
           </label>
           <select id="instrument-select" class="select-input">
-            <option value="1">01 Piano (Padrão)</option>
-            <option value="24">24 Bandoneon</option>
-            <option value="41">41 Violino</option>
-            <option value="110">110 Gaita de Foles</option>
-            <option value="114">114 Agogô</option>
-            <option value="123">123 Ondas do Mar</option>
+            <!-- Preenchido por app.js com os 128 instrumentos GM -->
           </select>
         </div>
 
@@ -113,6 +120,9 @@
       </button>
       <button id="stop-button" class="button button-stop" title="Parar">
         ■
+      </button>
+      <button id="export-button" class="button button-export" type="button" title="Salvar arquivo MIDI">
+        ⤓ MIDI
       </button>
     </div>
     <div class="footer-links">
