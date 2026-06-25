@@ -93,7 +93,11 @@ class CharacterMapper:
         # Se é '?' ou '.', não é repetição (sobe oitava)
         if char in ('?', '.'):
             return False
-        
+
+        # Fase 2: 'V', '>' e '<' têm regras próprias
+        if char in ('V', '>', '<'):
+            return False
+
         # Tudo mais é repetição ou silêncio
         return True
     
@@ -162,6 +166,18 @@ class CharacterMapper:
         
         return None
     
+    @staticmethod
+    def should_lower_octave(char):
+        return char == 'V'
+
+    @staticmethod
+    def should_accelerate(char):
+        return char == '>'
+
+    @staticmethod
+    def should_decelerate(char):
+        return char == '<'
+
     @staticmethod
     def get_odd_digit_instrument(char):
         """

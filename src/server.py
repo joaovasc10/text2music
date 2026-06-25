@@ -110,7 +110,24 @@ class TextoMusicaHandler(BaseHTTPRequestHandler):
             elif self.path == "/reset":
                 music_system.reset()
                 response = {"status": "ok"}
-            
+
+            # ================================================================
+            # POST /save - Salvar texto em arquivo .txt
+            # ================================================================
+            elif self.path == "/save":
+                text = data.get("text", "")
+                path = data.get("path", "musica.txt")
+                music_system.save_to_file(path, text)
+                response = {"status": "ok", "path": path}
+
+            # ================================================================
+            # POST /load - Carregar texto de arquivo .txt
+            # ================================================================
+            elif self.path == "/load":
+                path = data.get("path", "")
+                text = music_system.load_from_file(path)
+                response = {"status": "ok", "text": text}
+
             else:
                 self.send_error(404)
                 return

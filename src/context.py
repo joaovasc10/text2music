@@ -15,6 +15,9 @@ from constants import (
     DEFAULT_INSTRUMENT,
     MAX_VOLUME,
     MAX_OCTAVE,
+    MIN_BPM,
+    MAX_BPM,
+    BPM_STEP,
 )
 
 
@@ -131,6 +134,16 @@ class Context:
         """
         return self.last_note
     
+    def increase_bpm(self):
+        self.bpm = min(self.bpm + BPM_STEP, MAX_BPM)
+
+    def decrease_bpm(self):
+        self.bpm = max(self.bpm - BPM_STEP, MIN_BPM)
+
+    def lower_octave(self):
+        if self.octave > 0:
+            self.octave -= 1
+
     def note_duration_ms(self):
         """
         Retorna a duração de uma nota em milissegundos com base no BPM.

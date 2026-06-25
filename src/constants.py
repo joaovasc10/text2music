@@ -16,6 +16,20 @@ DEFAULT_BPM = 120
 DEFAULT_INSTRUMENT = 1  # Piano (General MIDI)
 MAX_VOLUME = 127
 MAX_OCTAVE = 8
+MIN_BPM = 40
+MAX_BPM = 240
+BPM_STEP = 10  # Incremento/decremento por '>' e '<'
+
+# ============================================================================
+# Configurações padrão por voz (Fase 2 — Fuga)
+# Índice = número da linha (0 = primeira voz)
+# ============================================================================
+VOICE_DEFAULTS = [
+    {'octave': 6, 'volume': 100, 'instrument': 6},   # V0: Harpsichord
+    {'octave': 5, 'volume': 80,  'instrument': 19},  # V1: Church Organ
+    {'octave': 4, 'volume': 60,  'instrument': 73},  # V2: Flute
+    {'octave': 3, 'volume': 40,  'instrument': 48},  # V3: Strings
+]
 
 # ============================================================================
 # Mapeamento de letras maiúsculas para nomes de notas musicais
@@ -65,7 +79,8 @@ NOTE_MIDI = {
     'Sol': 67,
     'La': 69,
     'Si': 71,
-    'SiBemol': 70
+    'SiBemol': 70,
+    'MiBemol': 63,  # Eb4 — adicionado na Fase 2 via token 'Mb'
 }
 
 # ============================================================================

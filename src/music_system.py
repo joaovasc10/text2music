@@ -3,15 +3,15 @@ Classe MusicSystem - TextoMúsica
 
 Implementa o padrão Facade, unindo todos os módulos.
 
-A interface web (via servidor HTTP) interage exclusivamente com MusicSystem.
-Mudanças internas (ex: trocar o Player) não exigem alterações na interface.
+Fase 2: suporte a múltiplas vozes (polifonia). Cada linha não-vazia do texto
+é interpretada como uma voz independente com oitava, volume e instrumento
+barrocos próprios, tocada em thread separada em canal MIDI diferente.
 """
 
 import threading
 
+from constants import VOICE_DEFAULTS
 from context import Context
-from character_mapper import CharacterMapper
-from text_reader import TextReader
 from interpreter import Interpreter
 from player import Player
 
@@ -19,32 +19,30 @@ from player import Player
 class MusicSystem:
     """
     Fachada do sistema.
-    
-    Instancia internamente: Context, CharacterMapper, TextReader,
-    Interpreter, Player.
-    
-    Expõe uma interface simples para o servidor HTTP.
+
+    Expõe interface simples para o servidor HTTP:
+        configure() → parâmetros iniciais (BPM, instrumento, oitava, volume)
+        run()       → processa texto e inicia reprodução (mono ou polifônica)
+        stop()      → para todas as vozes ativas
+        reset()     → restaura estado padrão
     """
-    
+
     def __init__(self):
-        """Inicializa o MusicSystem com todos os seus componentes."""
-        # Criar instâncias internas
-        self.interpreter = Interpreter()  # Já contém Context, CharacterMapper, TextReader
         self.player = Player()
-        
-        # Inicializar pygame.midi
         self.player.initialize()
-        
-        # Referência ao Context do Interpreter para acesso rápido
-        self.context = self.interpreter.context
-    
+        self.context = Context()
+        self._active_players = []
+
     def configure(self, bpm, instrument, octave, volume):
         """
-        Repassa os parâmetros iniciais ao Context antes de iniciar
-        a reprodução.
-        
+        Define parâmetros iniciais antes de run().
+
+        Em modo single-voice esses valores são usados diretamente.
+        Em modo multi-voice apenas o BPM é propagado às vozes; oitava,
+        instrumento e volume vêm dos VOICE_DEFAULTS.
+
         Args:
-            bpm (int): Batidas por minuto (tempo)
+            bpm (int): Batidas por minuto
             instrument (int): Instrumento MIDI (0-127)
             octave (int): Oitava base (0-8)
             volume (int): Volume (0-127)
@@ -53,50 +51,124 @@ class MusicSystem:
         self.context.set_instrument(instrument)
         self.context.set_octave(octave)
         self.context.set_volume(volume)
-    
+
     def run(self, text):
         """
         Processa o texto e inicia a reprodução.
-        
-        Chama interpret_text() para gerar eventos, depois inicia
-        play_sequence() em uma thread separada para não bloquear
-        a interface web.
-        
+
+        Se houver múltiplas linhas não-vazias, cada linha é uma voz
+        tocada em paralelo (Fuga — Fase 2). Caso contrário, reprodução
+        original de voz única.
+
         Args:
             text (str): Texto a processar
+
+        Returns:
+            int: Total de eventos gerados
         """
         try:
-            # Processar o texto e gerar eventos
-            events = self.interpreter.interpret_text(text)
-            
-            # Iniciar reprodução em thread separada
-            playback_thread = threading.Thread(
-                target=self.player.play_sequence,
-                args=[events],
-                daemon=True
-            )
-            playback_thread.start()
-            
-            return len(events)
+            voices = [line for line in text.split('\n') if line.strip()]
+
+            if len(voices) <= 1:
+                return self._run_single(text)
+            else:
+                return self._run_polyphonic(voices)
+
         except Exception as e:
             print(f"ERRO em MusicSystem.run(): {e}")
             return 0
-    
+
+    def _run_single(self, text):
+        """Modo voz única — comportamento original da Fase 1."""
+        interp = Interpreter()
+        interp.context.set_bpm(self.context.bpm)
+        interp.context.set_instrument(self.context.instrument)
+        interp.context.set_octave(self.context.octave)
+        interp.context.set_volume(self.context.volume)
+
+        events = interp.interpret_text(text)
+        self._active_players = [self.player]
+
+        t = threading.Thread(
+            target=self.player.play_sequence,
+            args=(events, 0),
+            daemon=True
+        )
+        t.start()
+        return len(events)
+
+    def _run_polyphonic(self, voices):
+        """Modo polifônico — uma thread por voz, canal MIDI distinto."""
+        self._active_players = []
+        total = 0
+
+        for i, voice_text in enumerate(voices):
+            channel = i % 16
+            if channel == 9:
+                channel = 10  # Canal 9 é reservado para percussão no GM
+
+            ctx = self._voice_context(i)
+            interp = Interpreter()
+            interp.context = ctx
+
+            events = interp.interpret_text(voice_text)
+            total += len(events)
+
+            # Cada voz tem seu próprio Player mas compartilha o dispositivo MIDI
+            vplayer = Player()
+            vplayer.output = self.player.output
+            self._active_players.append(vplayer)
+
+            t = threading.Thread(
+                target=vplayer.play_sequence,
+                args=(events, channel),
+                daemon=True
+            )
+            t.start()
+
+        return total
+
+    def _voice_context(self, index):
+        """Cria um Context com os padrões barrocos para a voz de índice index."""
+        ctx = Context()
+        defaults = VOICE_DEFAULTS[min(index, len(VOICE_DEFAULTS) - 1)]
+        ctx.set_bpm(self.context.bpm)
+        ctx.set_octave(defaults['octave'])
+        ctx.set_volume(defaults['volume'])
+        ctx.set_instrument(defaults['instrument'])
+        return ctx
+
     def stop(self):
-        """
-        Para a reprodução em andamento.
-        
-        Chama player.stop(), que seta is_playing = False.
-        play_sequence() vai parar na próxima iteração.
-        """
+        """Para todas as vozes ativas."""
+        for p in self._active_players:
+            p.stop()
         self.player.stop()
-    
+
     def reset(self):
-        """
-        Reseta o sistema aos valores padrão.
-        
-        Chama context.reset(), restaurando todos os parâmetros
-        ao estado inicial.
-        """
+        """Reseta o sistema aos valores padrão."""
+        self.stop()
         self.context.reset()
-        self.player.stop()
+
+    def load_from_file(self, path):
+        """
+        Lê um arquivo .txt e retorna o conteúdo.
+
+        Args:
+            path (str): Caminho do arquivo
+
+        Returns:
+            str: Conteúdo do arquivo
+        """
+        with open(path, 'r', encoding='utf-8') as f:
+            return f.read()
+
+    def save_to_file(self, path, text):
+        """
+        Salva o texto em um arquivo .txt.
+
+        Args:
+            path (str): Caminho de destino
+            text (str): Conteúdo a salvar
+        """
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(text)

@@ -24,25 +24,62 @@ class TextReader:
     def load(self, text):
         """
         Armazena o texto recebido da interface gráfica ou servidor.
-        
+
         Args:
             text (str): Texto a processar
         """
         self.raw_text = text
-    
+
+    def load_from_file(self, path):
+        """
+        Lê um arquivo .txt e armazena o conteúdo como raw_text.
+
+        Args:
+            path (str): Caminho para o arquivo de texto
+        """
+        with open(path, 'r', encoding='utf-8') as f:
+            self.raw_text = f.read()
+
     def characters(self):
         """
-        Gerador que faz yield de um caractere por vez.
-        
-        Newline (\n) é entregue como 'NL' para facilitar o mapeamento
-        em Constants.
-        
+        Gerador que faz yield de um token por vez.
+
+        Tokens especiais emitidos:
+        - 'NL'     → newline (\\n)
+        - 'Mb'     → dígrafo Mi Bemol (M seguido de b)
+        - '[n]'    → atraso de n batidas (ex: '[3]' para 3 batidas)
+
         Yields:
-            str: Caractere individual ou 'NL' para newline
+            str: Token individual
         """
-        for char in self.raw_text:
+        text = self.raw_text
+        i = 0
+        while i < len(text):
+            char = text[i]
+
             if char == '\n':
-                # Entregar newline como 'NL' para facilitar mapeamento
                 yield 'NL'
+                i += 1
+
+            elif char == 'M' and i + 1 < len(text) and text[i + 1] == 'b':
+                # Dígrafo Mi Bemol
+                yield 'Mb'
+                i += 2
+
+            elif char == '[':
+                # Tenta ler token de atraso [n]
+                j = i + 1
+                digits = ''
+                while j < len(text) and text[j].isdigit():
+                    digits += text[j]
+                    j += 1
+                if digits and j < len(text) and text[j] == ']':
+                    yield f'[{digits}]'
+                    i = j + 1
+                else:
+                    yield char
+                    i += 1
+
             else:
                 yield char
+                i += 1

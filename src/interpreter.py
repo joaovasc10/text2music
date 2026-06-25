@@ -50,11 +50,24 @@ class Interpreter:
         # Lista para acumular eventos
         events = []
         
-        # Processa cada caractere
-        for char in self.reader.characters():
-            event = self.interpret_char(char)
-            events.append(event)
-        
+        # Processa cada token
+        for token in self.reader.characters():
+            # Token de atraso [n]: gera n eventos de silêncio
+            if token.startswith('[') and token.endswith(']') and token[1:-1].isdigit():
+                n = int(token[1:-1])
+                for _ in range(n):
+                    events.append(MusicEvent(
+                        type_='silence',
+                        note=None,
+                        octave=self.context.get_octave(),
+                        volume=self.context.get_volume(),
+                        instrument=self.context.get_instrument(),
+                        duration_ms=self.context.note_duration_ms()
+                    ))
+            else:
+                event = self.interpret_char(token)
+                events.append(event)
+
         return events
     
     def interpret_char(self, char):
@@ -84,11 +97,30 @@ class Interpreter:
         """
         
         event_type = None
-        
+
+        # ====================================================================
+        # Fase 2: tokens e caracteres novos — verificados antes das regras base
+        # ====================================================================
+        if char == 'Mb':
+            self.context.set_last_note('MiBemol')
+            event_type = 'note'
+
+        elif self.mapper.should_lower_octave(char):
+            self.context.lower_octave()
+            event_type = 'control'
+
+        elif self.mapper.should_accelerate(char):
+            self.context.increase_bpm()
+            event_type = 'control'
+
+        elif self.mapper.should_decelerate(char):
+            self.context.decrease_bpm()
+            event_type = 'control'
+
         # ====================================================================
         # 1. Verificar se é uma nota (A-H maiúsculas)
         # ====================================================================
-        if self.mapper.is_note(char):
+        elif self.mapper.is_note(char):
             note = self.mapper.get_note(char)
             self.context.set_last_note(note)
             event_type = 'note'

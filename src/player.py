@@ -70,87 +70,56 @@ class Player:
             print(f"ERRO ao inicializar pygame.midi: {e}")
             self.output = None
     
-    def play_event(self, event):
+    def play_event(self, event, channel=0):
         """
-        Reproduz um MusicEvent.
-        
-        Lógica:
-        - type='note': Calcula a nota MIDI, envia note_on, aguarda,
-                       envia note_off
-        - type='silence': Aguarda duration_ms sem tocar nada
-        - type='control': Envia program_change para mudar instrumento
-        
+        Reproduz um MusicEvent no canal MIDI especificado.
+
         Args:
             event (MusicEvent): Evento a reproduzir
+            channel (int): Canal MIDI (0-15)
         """
         if not self.output:
-            # pygame.midi não disponível, simular com delays
-            if event.type == 'note':
-                time.sleep(event.duration_ms / 1000.0)
-            elif event.type == 'silence':
+            if event.type in ('note', 'silence'):
                 time.sleep(event.duration_ms / 1000.0)
             return
-        
+
         try:
-            # ================================================================
-            # Reproduzir nota
-            # ================================================================
             if event.type == 'note' and event.note:
-                # Obter nota MIDI base
                 midi_base = NOTE_MIDI.get(event.note, 60)
-                
-                # Calcular nota MIDI final com ajuste de oitava
                 # Fórmula: note_midi = base + (octave - 4) * 12
                 midi_note = midi_base + (event.octave - 4) * 12
-                
-                # Clamp para range MIDI válido (0-127)
                 midi_note = max(0, min(127, midi_note))
-                
-                # Enviar note_on (command=0x90, note, velocity)
-                self.output.note_on(midi_note, event.volume, self.current_channel)
 
-                # Aguardar pela duração da nota
+                self.output.note_on(midi_note, event.volume, channel)
                 time.sleep(event.duration_ms / 1000.0)
+                self.output.note_off(midi_note, 0, channel)
 
-                # Enviar note_off (command=0x80)
-                self.output.note_off(midi_note, 0, self.current_channel)
-            
-            # ================================================================
-            # Reproduzir silêncio
-            # ================================================================
             elif event.type == 'silence':
                 time.sleep(event.duration_ms / 1000.0)
-            
-            # ================================================================
-            # Aplicar mudança de controle (instrumento, volume, etc)
-            # ================================================================
+
             elif event.type == 'control':
-                self.output.set_instrument(event.instrument, self.current_channel)
-        
+                self.output.set_instrument(event.instrument, channel)
+
         except Exception as e:
             print(f"ERRO ao reproduzir evento: {e}")
-    
-    def play_sequence(self, events):
+
+    def play_sequence(self, events, channel=0):
         """
         Loop de reprodução em thread separada.
 
-        Itera sobre a lista de eventos verificando is_playing a cada um.
-        Se is_playing ficar False (usuário clicou Stop), para imediatamente.
-
         Args:
             events (list[MusicEvent]): Lista de eventos a reproduzir
+            channel (int): Canal MIDI desta voz (0-15)
         """
         self.is_playing = True
 
-        # Aplica o instrumento configurado antes de começar a tocar,
-        # caso o texto comece direto com notas sem eventos de controle
         if events and self.output:
-            self.output.set_instrument(events[0].instrument, self.current_channel)
+            self.output.set_instrument(events[0].instrument, channel)
 
         for event in events:
             if not self.is_playing:
                 break
-            self.play_event(event)
+            self.play_event(event, channel)
 
         self.is_playing = False
     
