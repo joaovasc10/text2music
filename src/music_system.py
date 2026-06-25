@@ -14,6 +14,7 @@ from constants import VOICE_DEFAULTS
 from context import Context
 from interpreter import Interpreter
 from player import Player
+from midi_writer import write_midi
 
 
 class MusicSystem:
@@ -32,6 +33,8 @@ class MusicSystem:
         self.player.initialize()
         self.context = Context()
         self._active_players = []
+        # Trilhas da última execução, usadas para exportar o MIDI gerado
+        self._last_tracks = []
 
     def configure(self, bpm, instrument, octave, volume):
         """
@@ -88,6 +91,8 @@ class MusicSystem:
 
         events = interp.interpret_text(text)
         self._active_players = [self.player]
+        instrument = events[0].instrument if events else self.context.instrument
+        self._last_tracks = [{'channel': 0, 'instrument': instrument, 'events': events}]
 
         t = threading.Thread(
             target=self.player.play_sequence,
@@ -100,6 +105,7 @@ class MusicSystem:
     def _run_polyphonic(self, voices):
         """Modo polifônico — uma thread por voz, canal MIDI distinto."""
         self._active_players = []
+        self._last_tracks = []
         total = 0
 
         for i, voice_text in enumerate(voices):
@@ -113,6 +119,11 @@ class MusicSystem:
 
             events = interp.interpret_text(voice_text)
             total += len(events)
+
+            instrument = events[0].instrument if events else ctx.instrument
+            self._last_tracks.append(
+                {'channel': channel, 'instrument': instrument, 'events': events}
+            )
 
             # Cada voz tem seu próprio Player mas compartilha o dispositivo MIDI
             vplayer = Player()
@@ -131,7 +142,8 @@ class MusicSystem:
     def _voice_context(self, index):
         """Cria um Context com os padrões barrocos para a voz de índice index."""
         ctx = Context()
-        defaults = VOICE_DEFAULTS[min(index, len(VOICE_DEFAULTS) - 1)]
+        # Fase 2: a partir da 5ª voz o ciclo se repete (voz 4 = voz 0, etc.)
+        defaults = VOICE_DEFAULTS[index % len(VOICE_DEFAULTS)]
         ctx.set_bpm(self.context.bpm)
         ctx.set_octave(defaults['octave'])
         ctx.set_volume(defaults['volume'])
@@ -172,3 +184,20 @@ class MusicSystem:
         """
         with open(path, 'w', encoding='utf-8') as f:
             f.write(text)
+
+    def export_midi(self, path):
+        """
+        Exporta a última sequência gerada como arquivo MIDI (.mid).
+
+        Cada voz é gravada em uma trilha própria, preservando a polifonia.
+
+        Args:
+            path (str): Caminho de destino (ex: 'musica.mid')
+
+        Returns:
+            str: O caminho do arquivo gravado
+        """
+        if not self._last_tracks:
+            raise ValueError("Nenhuma sequência gerada ainda. Toque algo antes de exportar.")
+        write_midi(path, self._last_tracks)
+        return path

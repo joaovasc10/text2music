@@ -128,6 +128,24 @@ class TextoMusicaHandler(BaseHTTPRequestHandler):
                 text = music_system.load_from_file(path)
                 response = {"status": "ok", "text": text}
 
+            # ================================================================
+            # POST /export_midi - Salvar a última sequência como arquivo .mid
+            # ================================================================
+            elif self.path == "/export_midi":
+                text = data.get("text", "")
+                bpm = data.get("bpm", 120)
+                instrument = data.get("instrument", 1)
+                octave = data.get("octave", 4)
+                volume = data.get("volume", 64)
+                path = data.get("path", "musica.mid")
+
+                # Gera os eventos (sem tocar) e exporta
+                music_system.configure(bpm, instrument, octave, volume)
+                music_system.run(text)
+                music_system.stop()  # não queremos áudio, só o arquivo
+                saved = music_system.export_midi(path)
+                response = {"status": "ok", "path": saved}
+
             else:
                 self.send_error(404)
                 return
