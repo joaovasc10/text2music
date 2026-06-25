@@ -25,3 +25,6 @@ Thumbs.db
 # Projeto
 *.log
 *.db
+
+# Apresentação (material de slides, não faz parte do código)
+apresentacao.md
